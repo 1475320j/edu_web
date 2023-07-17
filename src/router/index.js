@@ -130,6 +130,49 @@ export const constantRouterMap = [
     ]
   },
 
+  // 讲师管理
+  {
+    path: '/teacher',
+    component: Layout,
+    redirect: '/teacher/list',
+    name: 'Teacher',
+    meta: {
+      title: '讲师管理'
+    },
+    children: [
+      {
+        // 讲师列表
+        path: 'list',
+        name: 'TeacherList',
+        component: () => import('@/views/teacher/list'),
+        meta: {
+          title: '讲师列表',
+          icon: 'peoples'
+        }
+      },
+      {
+        // 添加讲师
+        path: 'create',
+        name: 'TeacherCreate',
+        component: () => import('@/views/teacher/form'),
+        meta: {
+          title: '添加讲师'
+        }
+      },
+      {
+        // 编辑讲师
+        path: 'edit/:id',
+        name: 'TeacherEdit',
+        component: () => import('@/views/teacher/form'),
+        meta: {
+          title: '编辑讲师',
+          icon: '@/icons/svg/edit.svg'
+        },
+        hidden: true
+      }
+    ]
+  },
+
   { path: '*', redirect: '/404', hidden: true }
 ]
 

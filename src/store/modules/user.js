@@ -27,10 +27,12 @@ const user = {
   actions: {
     // 登录
     Login({ commit }, userInfo) {
+      // console.log('Login')
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
+        // console.log('logiPromisen')
         login(username, userInfo.password).then(response => {
-          console('login')
+          // console.log('login')
           const data = response.data
           setToken(data.token)
           commit('SET_TOKEN', data.token)

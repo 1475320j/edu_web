@@ -27,6 +27,7 @@ service.interceptors.request.use(
 // respone拦截器
 service.interceptors.response.use(
   response => {
+    console.log('// respone拦截器')
     /**
      * code为非20000是抛错 可结合自己业务进行修改
      */
@@ -56,6 +57,7 @@ service.interceptors.response.use(
       }
       return Promise.reject('error')
     } else {
+      console.log('response.data')
       return response.data
     }
   },
