@@ -27,7 +27,7 @@ service.interceptors.request.use(
 // respone拦截器
 service.interceptors.response.use(
   response => {
-    console.log('// respone拦截器')
+    console.log('// respone拦截器', response)
     /**
      * code为非20000是抛错 可结合自己业务进行修改
      */

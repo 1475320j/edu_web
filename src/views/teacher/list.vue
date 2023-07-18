@@ -33,13 +33,16 @@
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" @click="getTeacherList()">查询</el-button>
         <el-button type="default" @click="resetData()">清空</el-button>
+        <el-button type="danger" icon="el-icon-delete" @click="batchRemove()">批量删除</el-button>
       </el-form-item>
     </el-form>
     <!-- 表格 -->
     <el-table
       :data="list"
       border
-      stripe>
+      stripe
+      @selection-change="handleSelectionChange"
+    >
       <el-table-column type="selection"/>
       <el-table-column label="ID" width="50">
         <!-- 使用连续的序号 -->
@@ -84,6 +87,7 @@
 
 <script>
 import teacherApi from '@/api/teacher'
+
 export default {
   data() {		// 定义数据
     return {
@@ -95,7 +99,9 @@ export default {
       // 每页记录数
       limit: 10,
       // 查询用的对象
-      searchObj: {}
+      searchObj: {},
+      // 选中的记录列表
+      multipleSelection: []
     }
   },
 
@@ -129,13 +135,77 @@ export default {
       this.searchObj = {}
       this.getTeacherList()
     },
-
-    deleteTeacherById(id) {
-      return request({
-        url: `/admin/edu/teacher/remove/${id}`,
-        method: 'delete'
+    removeById(data) {
+      this.$confirm('此操作将永久删除【' + data.name + '】, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用删除的 api
+        teacherApi.deleteTeacherById(data.id).then(resp => {
+          // 获取所有 讲师
+          this.getTeacherList()
+          this.$message({
+            type: 'success',
+            message: resp.message
+          })
+        })
+      }).catch((err) => {
+        // 如果是取消删除, 是 cancel
+        // 如果是后端传来的错误, 不能按这个走
+        if (err === 'cancel') {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        }
       })
-    }
+    },
+    // 多选
+    handleSelectionChange(selection) {
+      // 拿到选中的数据
+      this.multipleSelection = selection
+      console.log(selection)
+    },
+    // 批量删除
+    batchRemove() {
+      // 判断是否选中数据
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择数据'
+        })
+        return
+      }
+      this.$confirm('此操作将永久删除这些数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const idList = []
+        this.multipleSelection.forEach(element => {
+          idList.push(element.id)
+        })
+        console.log('删除项', idList)
+        // 调用删除的api
+        teacherApi.batchRemove(idList).then(resp => {
+          this.getTeacherList()
+          this.$message({
+            type: 'success',
+            message: resp.message
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    // 去更改页面
+    toUpdate(id) {
+      this.$router.push({ path: `/teacher/edit/${id}` })
+    },
   }
 }
 </script>
