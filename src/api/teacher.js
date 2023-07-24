@@ -36,5 +36,13 @@ export default {
       url: `/admin/edu/teacher/get/${id}`,
       method: 'get'
     })
-  }
+  },
+  updateById(teacher) {
+    return request({
+      url: '/admin/edu/teacher/update',
+      method: 'put',
+      // data: Json格式提交数据
+      data: teacher
+    })
+  },
 }

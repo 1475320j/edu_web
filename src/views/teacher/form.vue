@@ -33,10 +33,15 @@
       <!-- 讲师头像:TODO -->
 
       <el-form-item>
+<!--        <el-button-->
+<!--          :disabled="saveBtnDisabled"-->
+<!--          type="primary"-->
+<!--          @click="saveData()">保存-->
+<!--        </el-button>-->
         <el-button
           :disabled="saveBtnDisabled"
           type="primary"
-          @click="saveData()">保存
+          @click="saveOrUpdate()">{{ saveOrUpdateVal }}
         </el-button>
       </el-form-item>
     </el-form>
@@ -66,27 +71,33 @@ export default {
     }
   },
   created() {
-    /**
-     * 问题: 怎么区分是添加还是编辑才转到这个页面 ?
-     *    在 router/index.js 中, 配置了编辑和添加的两个路由
-     *    如果要编辑, 就会在路由添加 id,
-     *    所以可以用有没有 id 来判断是 添加页面还是编辑页面
-     *
-     *    this.$router  操作路由的对象，多数用于跳转页面
-     *    this.$route   路由对象本身，多数用来接收参数
-     */
-    // console.log('this.$route.params', this.$route.params)
-    // console.log('this.$route.params.id', this.$route.params.id)
-    if (this.$route.params && this.$route.params.id) {
-      // 如果路由当中有 id, 就是编辑页面, 再把 id 传进去
-      console.log('this.$route.params', this.$route.params)
-      console.log('this.$route.params.id', this.$route.params.id)
-      this.fetchDataById(this.$route.params.id)
-      console.log('this.data()', this.teacher)
-      this.saveOrUpdateVal = '修改'
+    this.init()
+  },
+  watch: {
+    $route(to, from) {
+      this.init()
     }
   },
   methods: {
+    init() {
+      /**
+       * 问题: 怎么区分是添加还是编辑才转到这个页面 ?
+       *    在 router/index.js 中, 配置了编辑和添加的两个路由
+       *    如果要编辑, 就会在路由添加 id,
+       *    所以可以用有没有 id 来判断是 添加页面还是编辑页面
+       *
+       *    this.$router  操作路由的对象，多数用于跳转页面
+       *    this.$route   路由对象本身，多数用来接收参数
+       */
+      if (this.$route.params && this.$route.params.id) {
+        // 如果路由当中有 id, 就是编辑页面, 再把 id 传进去
+        this.fetchDataById(this.$route.params.id)
+        this.saveOrUpdateVal = '修改'
+      } else {
+        this.teacher = {}
+        this.saveOrUpdateVal = '保存'
+      }
+    },
     // 数据保存
     saveData() {
       teacherApi.save(this.teacher).then(resp => {
@@ -106,7 +117,27 @@ export default {
         // 如果是后端传来的错误, 不能按这个走
         console.log('err', err)
       })
-    }
+    },
+    // 更新用户
+    updateData() {
+      teacherApi.updateById(this.teacher).then(resp => {
+        this.$message({
+          type: 'success',
+          message: resp.message
+        })
+        this.$router.push({path: '/teacher/list'})
+      })
+    },
+    // 新增保存或者更改数据的判断入口
+    saveOrUpdate() {
+      this.saveBtnDisabled = true
+      if (this.teacher.id) {
+        this.updateData()
+      } else {
+        this.saveData()
+      }
+    },
+
   }
 }
 </script>
